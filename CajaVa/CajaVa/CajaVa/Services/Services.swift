@@ -1,3 +1,4 @@
+import Combine
 import FakeService
 import Foundation
 
@@ -7,6 +8,12 @@ enum LoginError: Error {
     case contactSupport
     /// When either the email or the password is wrong
     case wrongCredentials
+}
+
+/// Generic errors associated with network requests
+enum NetworkError: Error {
+    /// A network error the app was unabled to properly identity
+    case unknown
 }
 
 enum Services {
@@ -40,6 +47,38 @@ enum Services {
         FakeServices.shared.getConfiguration(completion: completion)
     }
     
+    //MARK: - Combine alternatives
+    /// Retrieves the configuration for the current user, includes delays for the services
+    ///
+    /// - returns a publisher that emits configurations or network errors
+    static func getConfiguration() -> AnyPublisher<Configuration, NetworkError> {
+        return Deferred {
+            Future { promise in
+                FakeServices.shared.getConfiguration { configuration in
+                    if let configuration = configuration {
+                        promise(.success(configuration))
+                    } else {
+                        promise(.failure(.unknown))
+                    }
+                }
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    /// Retrieves the current state of the system
+    ///
+    /// - returns a publisher that emits the current global state or nil if not available
+    static func getSystemState() -> AnyPublisher<GlobalState?, Never> {
+        return Deferred {
+            Future { promise in
+                FakeServices.shared.getSystemState { state in
+                    promise(.success(state))
+                }
+            }
+        }
+        .eraseToAnyPublisher()
+    }
     
     /// Used to setup different network scenarios for demo purposes
     static func setup() {
