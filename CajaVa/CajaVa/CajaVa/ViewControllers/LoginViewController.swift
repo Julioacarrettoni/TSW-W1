@@ -1,5 +1,6 @@
 import UIKit
 import FakeService
+import Combine
 
 class LoginViewController: UIViewController {
     @IBOutlet weak var mainStackView: UIStackView!
@@ -13,6 +14,11 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var passwordErrorLabel: UILabel!
     
     @IBOutlet weak var loginButton: UIButton!
+    
+    @Published private var emailIsValid: Bool = false       // This is both a property and a Published
+    @Published private var passwordIsValid: Bool = false    // This is both a property and a Published
+    
+    private var cancellables = Set<AnyCancellable>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +35,32 @@ class LoginViewController: UIViewController {
         self.emailErrorLabel.sendToBack()
         self.passwordErrorLabel.sendToBack()
         
+        self.$emailIsValid                                      // This is a publisher that emits whenever self.emailIsValid changes
+            .dropFirst()                                        // Ignores the first emited event
+            .removeDuplicates()                                 // Makes the publisher only emit if the new value is different from the last emited value
+            .sink { [weak self] isValid in                      // Attaches a closure to a publisher whose output is Bool, everytime an event is emited the closure is executed
+                UIView.animate(withDuration: 0.3) {
+                    self?.emailErrorLabel.isHidden = isValid
+                }
+            }
+            .store(in: &self.cancellables)                      // We need to keep the cancellable alive for as long as we want this behavior to continue
+        
+        self.$passwordIsValid                                   // This is a publisher that emits whenever self.emailIsValid changes
+            .dropFirst()                                        // Ignores the first emited event
+            .removeDuplicates()                                 // Makes the publisher only emit if the new value is different from the last emited value
+            .sink { [weak self] isValid in                      // Attaches a closure to a publisher whose output is Bool, everytime an event is emited the closure is executed
+                UIView.animate(withDuration: 0.3) {
+                    self?.passwordErrorLabel.isHidden = isValid
+                }
+            }
+            .store(in: &self.cancellables)                      // We need to keep the cancellable alive for as long as we want this behavior to continue
+        
+        self.$emailIsValid.combineLatest(self.$passwordIsValid) // Creates a new publisher that emits a tuple with the most recent value whenever any of them emits and we have enought emited valus to fill the tuple
+            .map { $0 && $1 }                                   // Turns the output of the Publisher from (Bool, Bool) to just Bool where is only true if both were true
+            .removeDuplicates()                                 // Makes the publisher only emit if the new value is different from the last emited value
+            .assign(to: \.isEnabled, on: self.loginButton)      // Assigns the value emited by the publisher directly into a property in an object
+            .store(in: &self.cancellables)                      // We need to keep the cancellable alive for as long as we want this behavior to continue
+        
         // Wire textfield events to the "updateUI" function to keep ui updated
         self.emailTextField.addTarget(self, action: #selector(self.emailTextFieldChanged), for: .allEditingEvents)
         self.passwordTextfield.addTarget(self, action: #selector(self.passwordTextFieldChanged), for: .allEditingEvents)
@@ -37,38 +69,13 @@ class LoginViewController: UIViewController {
     /// Shows/hides errors related to email textfields
     @objc private func emailTextFieldChanged() {
         // We check if the password is valid
-        let validEmail = self.emailTextField.text?.isValidEmail() ?? false
-        // We update the UI with the new calculated value and the previous one that was stored on isHidden
-        self.updateUI(validEmail: validEmail, validPassword: self.passwordErrorLabel.isHidden)
+        self.emailIsValid = self.emailTextField.text?.isValidEmail() ?? false
     }
 
     /// Shows/hides errors related to password textfields
     @objc private func passwordTextFieldChanged() {
         // We check if the password is valid
-        let validPassword = self.passwordTextfield.text?.isValidPassword() ?? false
-        // We update the UI with the new calculated value and the previous one that was stored on isHidden
-        self.updateUI(validEmail: self.emailErrorLabel.isHidden, validPassword: validPassword)
-    }
-    
-    /// Updates the UI based on whether the email and password are valid
-    ///
-    /// - parameter validEmail:    Whether the email is valid
-    /// - parameter validPassword: Whether the password is valid
-    private func updateUI(validEmail: Bool, validPassword: Bool) {
-        UIView.animate(withDuration: 0.3) {
-            // If the email is not valid the error label below the email textfielf is shown
-            if self.emailErrorLabel.isHidden != validEmail { // To prevent bug with StackViews
-                self.emailErrorLabel.isHidden = validEmail
-            }
-            
-            // If the password is not valid the error label below the password textfielf is shown
-            if self.passwordErrorLabel.isHidden != validPassword { // To prevent bug with StackViews
-                self.passwordErrorLabel.isHidden = validPassword
-            }
-            
-            // Only when both email and password are valid the login button is made enabled
-            self.loginButton.isEnabled = validEmail && validPassword
-        }
+        self.passwordIsValid = self.passwordTextfield.text?.isValidPassword() ?? false
     }
     
     /// Action fired when the login button is activated
