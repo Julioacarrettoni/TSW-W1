@@ -68,7 +68,7 @@ class MainViewController: UIViewController {
     // MARK: - Actions
     /// Fires when the menu button is touched
     @IBAction func onMenuButtonTouchUpInside() {
-        let alert = UIAlertController(title: "Fancy Menu", message: nil, preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Hamburger Menu", message: nil, preferredStyle: .actionSheet)
         
         alert.addAction(UIAlertAction(title: "Logout", style: .destructive , handler:{ (UIAlertAction)in
             User.logout()
