@@ -11,7 +11,6 @@
 		8E3B192E25C783C80095C8D5 /* SystemState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3B192D25C783C80095C8D5 /* SystemState.swift */; };
 		8E6C531E2515AF26000B84AB /* TableViewHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E6C531D2515AF26000B84AB /* TableViewHandler.swift */; };
 		8E6C53202515BD85000B84AB /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E6C531F2515BD85000B84AB /* LoginViewController.swift */; };
-		8E6C53292515C6FF000B84AB /* UIActivityIndicatorView+animationVar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E6C53282515C6FF000B84AB /* UIActivityIndicatorView+animationVar.swift */; };
 		8E6C532B2515DFB3000B84AB /* UIView+ordering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E6C532A2515DFB3000B84AB /* UIView+ordering.swift */; };
 		8E735E78250D6F2F00348AEB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E735E77250D6F2F00348AEB /* AppDelegate.swift */; };
 		8E735E7A250D6F2F00348AEB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E735E79250D6F2F00348AEB /* SceneDelegate.swift */; };
@@ -42,7 +41,6 @@
 		8E3B192D25C783C80095C8D5 /* SystemState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemState.swift; sourceTree = "<group>"; };
 		8E6C531D2515AF26000B84AB /* TableViewHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewHandler.swift; sourceTree = "<group>"; };
 		8E6C531F2515BD85000B84AB /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
-		8E6C53282515C6FF000B84AB /* UIActivityIndicatorView+animationVar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIActivityIndicatorView+animationVar.swift"; sourceTree = "<group>"; };
 		8E6C532A2515DFB3000B84AB /* UIView+ordering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+ordering.swift"; sourceTree = "<group>"; };
 		8E735E74250D6F2F00348AEB /* Monitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E735E77250D6F2F00348AEB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -74,7 +72,6 @@
 			isa = PBXGroup;
 			children = (
 				8EC4F137250DECD4005E5622 /* Strings+Login.swift */,
-				8E6C53282515C6FF000B84AB /* UIActivityIndicatorView+animationVar.swift */,
 				8E6C532A2515DFB3000B84AB /* UIView+ordering.swift */,
 			);
 			path = Extensions;
@@ -248,7 +245,6 @@
 			files = (
 				8E3B192C25C781EE0095C8D5 /* Reading.swift in Sources */,
 				8E6C53202515BD85000B84AB /* LoginViewController.swift in Sources */,
-				8E6C53292515C6FF000B84AB /* UIActivityIndicatorView+animationVar.swift in Sources */,
 				8E735E7C250D6F2F00348AEB /* MainViewController.swift in Sources */,
 				8EC4F138250DECD4005E5622 /* Strings+Login.swift in Sources */,
 				8ED4ABA5250DC97600ECD6F5 /* Services.swift in Sources */,

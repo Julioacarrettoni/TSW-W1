@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import UIKit
 
 /// Struct that holds the minimum data that can be rendered on a UITableView using cells with the `UITableViewCell.CellStyle.subtitle` style.
@@ -15,6 +16,7 @@ final class TableViewHandler: NSObject {
     var entities = [Entity]() {
         didSet {
             self.tableView?.reloadData()
+            self.reloaded = ()
         }
     }
     
@@ -22,7 +24,11 @@ final class TableViewHandler: NSObject {
         self.tableView = tableView
         super.init()
         tableView.dataSource = self
+        tableView.delegate = self
     }
+    
+    @Published var selectedIndex: IndexPath? = nil
+    @Published var reloaded: Void = ()
 }
 
 /// Very standard and regular code to populate a UITableView based on an array of elements, nothing fancy
@@ -38,5 +44,15 @@ extension TableViewHandler: UITableViewDataSource {
         cell.detailTextLabel?.text = entities[indexPath.row].subtitle
         
         return cell
+    }
+}
+
+extension TableViewHandler: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.selectedIndex = indexPath
+    }
+    
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        self.selectedIndex = nil
     }
 }

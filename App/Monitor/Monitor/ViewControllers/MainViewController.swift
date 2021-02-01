@@ -1,5 +1,6 @@
 import MapKit
 import UIKit
+import Combine
 
 class MainViewController: UIViewController {
     @IBOutlet weak var mainStack: UIStackView!
@@ -15,20 +16,59 @@ class MainViewController: UIViewController {
     /// Flag to keep track if we already refreshed the UI once
     private var uiWasLoadedOnce = false
     
+    private var cancellables: Set<AnyCancellable> = []
+    
     /// The current state of the system
     private var systemState: SystemState? {
         didSet {
             self.updateUI()
         }
     }
+    
         
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.setLoading(true)
+        // Setup IBActions
         self.segmentedControl.addTarget(self, action: #selector(self.onSegmentedControlValueChanged), for: .valueChanged)
+        
+        // Setup initial state of the UI
+        self.setLoading(true)
         self.tableView.alpha = 0.0
         self.segmentedControl.alpha = 0.0
+        
+        // Fetch data
         self.fetchSystemState()
+        
+//        let selectedSegmentIndexPublisher = self.segmentedControl.publisher(for: \.selectedSegmentIndex)
+//
+//        let selectedWhenIndex0 = self.$indexPath
+//            .dropFirst()
+//            .filter { [weak self] _ in
+//                self?.segmentedControl.selectedSegmentIndex == 0
+//            }
+//            .prepend(.init(item: 0, section: 0))
+//
+//        let selectedWhenIndex1 = self.$indexPath
+//            .dropFirst()
+//            .filter { [weak self] _ in
+//                self?.segmentedControl.selectedSegmentIndex == 1
+//            }
+//            .prepend(.init(item: 0, section: 0))
+//
+//        self.$refreshed.combineLatest(selectedWhenIndex0, selectedWhenIndex1, selectedSegmentIndexPublisher)
+//            .map { _, lastCellWhenTab0, lastCellWhenTab1, lastSelectedTab in
+//                lastSelectedTab == 0 ? lastCellWhenTab0 : lastCellWhenTab1
+//            }
+//            .sink { [weak self] index in
+//                self?.tableView.selectRow(at: index, animated: false, scrollPosition: .none)
+//            }
+//            .store(in: &self.cancellables)
+        
+        self.tableViewHandler.$reloaded.combineLatest(self.tableViewHandler.$selectedIndex)
+            .sink { [weak self] _, index in
+                self?.tableView.selectRow(at: index, animated: false, scrollPosition: .none)
+            }
+            .store(in: &self.cancellables)
     }
     
     /// Set the UI to the loading state
@@ -37,7 +77,11 @@ class MainViewController: UIViewController {
     private func setLoading(_ isLoading: Bool) {
         self.view.isUserInteractionEnabled = !isLoading
         self.mainStack.alpha = isLoading ? 0.3 : 1.0
-        self.activityIndicator.theOtherIsAnimating = isLoading
+        if isLoading {
+            self.activityIndicator.startAnimating()
+        } else {
+            self.activityIndicator.stopAnimating()
+        }
     }
     
     /// Fetches the system state from the server, updates the UI with the new state and repeats the loop forever
@@ -45,6 +89,7 @@ class MainViewController: UIViewController {
         Services.getSystemState { [weak self] state in
             self?.systemState = state
             
+            // Very bad but simple pooling mechanism :D
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 self?.fetchSystemState()
             }
